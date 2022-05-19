@@ -34,9 +34,9 @@ variable "class" {
   type = map(string)
   default = {
     control_plane_class         = "best-effort-xsmall"
-    control_plane_storage_class = "cstg-k8s-ds1"
+    control_plane_storage_class = "my-sc"
     worker_node_class           = "best-effort-xsmall"
-    worker_node_storage_class   = "cstg-k8s-ds1"
+    worker_node_storage_class   = "my-sc"
   }
 }
 
