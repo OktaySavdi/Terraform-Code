@@ -8,17 +8,8 @@ terraform {
 }
 
 provider "tanzu-mission-control" {
-  endpoint            = var.endpoint == "stg" ? "mytest-cluster.mydomain" : "myprod-cluster.mydomain"
+  endpoint            = "mycompanyname.tmc.cloud.vmware.com"
   vmw_cloud_api_token = var.api_token
-}
-
-// Operations supported : Read, Create, Update & Delete (except nodepools)
-
-// Read Tanzu Mission Control Tanzu Kubernetes Grid Service workload cluster : fetch cluster details
-data "tanzu-mission-control_cluster" "ready_only_cluster_view" {
-  management_cluster_name = var.endpoint == "stg" ? "mytest-cluster_name" : "myprod-cluster_name" #tmc managementcluster list
-  provisioner_name        = var.provisioner_name                                                  # tmc managementcluster provisioner list
-  name                    = var.cluster_name
 }
 
 # Create Tanzu Mission Control Tanzu Kubernetes Grid Service workload cluster entry
@@ -58,12 +49,6 @@ resource "tanzu-mission-control_cluster" "create_tkgs_workload" {
           class             = var.class.control_plane_class
           storage_class     = var.class.control_plane_storage_class
           high_availability = var.node_count.control_plane_high_availability
-          volumes {
-            capacity          = 4
-            mount_path        = "/var/lib/etcd"
-            name              = "etcd-0"
-            pvc_storage_class = "tkgs-k8s-obj-policy"
-          }
         }
         node_pools {
           spec {
@@ -75,12 +60,6 @@ resource "tanzu-mission-control_cluster" "create_tkgs_workload" {
             tkg_service_vsphere {
               class         = var.class.worker_node_class
               storage_class = var.class.worker_node_storage_class
-              volumes {
-                capacity          = 4
-                mount_path        = "/var/lib/etcd"
-                name              = "etcd-0"
-                pvc_storage_class = "tkgs-k8s-obj-policy"
-              }
             }
           }
           info {
