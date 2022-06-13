@@ -1,17 +1,3 @@
-terraform {
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "3.4.0"
-    }
-  }
-}
-
-provider "azurerm" {
-  features {}
-  # Configuration options
-}
-
 # Create (and display) an SSH key
 resource "tls_private_key" "example_ssh" {
   algorithm = "RSA"
@@ -21,6 +7,7 @@ resource "tls_private_key" "example_ssh" {
 resource "azurerm_resource_group" "main" {
   name     = "${var.prefix}-resources"
   location = var.location
+  tags     = merge(local.common_tags, local.extra_tags)
 }
 # Create virtual network
 resource "azurerm_virtual_network" "main" {
@@ -28,6 +15,7 @@ resource "azurerm_virtual_network" "main" {
   address_space       = var.azurerm_virtual_network
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
+  tags                = merge(local.common_tags, local.extra_tags)
 }
 # Create subnet
 resource "azurerm_subnet" "internal" {
@@ -42,6 +30,7 @@ resource "azurerm_public_ip" "public" {
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
   allocation_method   = "Dynamic"
+  tags                = merge(local.common_tags, local.extra_tags)
 }
 # Create Network Security Group and rule
 resource "azurerm_network_security_group" "allow-ssh" {
@@ -60,9 +49,7 @@ resource "azurerm_network_security_group" "allow-ssh" {
     source_address_prefix      = var.security_rule.source_address_prefix
     destination_address_prefix = var.security_rule.destination_address_prefix
   }
-  tags = {
-    environment = var.environment
-  }
+  tags     = merge(local.common_tags, local.extra_tags)
 }
 # Create network interface
 resource "azurerm_network_interface" "main" {
@@ -87,6 +74,7 @@ resource "azurerm_linux_virtual_machine" "main" {
   name                            = "${var.prefix}-vm"
   resource_group_name             = azurerm_resource_group.main.name
   location                        = azurerm_resource_group.main.location
+  tags                            = merge(local.common_tags, local.extra_tags)
   size                            = var.size
   admin_username                  = var.username
   admin_password                  = var.password
